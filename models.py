@@ -1,27 +1,30 @@
-from flask import *
-#from session import SqliteSessionInterface
+from settings import *
 import os
-app = Flask(__name__)
-app.config.update(dict(
-SQLALCHEMY_DATABASE_URI='sqlite:///{0}'.format(os.path.join(app.root_path, 'second_lab.db')),
-DEBUG=True
-))
-app.secret_key = "key for flask"
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
+
+engine = create_engine('sqlite:///{0}/{1}'.format(DATABASE_PATH, 'lab3.db'), convert_unicode=True)
+db_session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
+Base = declarative_base()
+Base.query = db_session.query_property()
+
 from sqlite3 import dbapi2 as sqlite
-from sqlalchemy.orm import sessionmaker, aliased
+from sqlalchemy.orm import sessionmaker, aliased, relationship
+
 from datetime import datetime, timedelta
 import hashlib, string, random
-#here are models for the db
+
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import *
-db = SQLAlchemy(app)
 
 #Models
 
 def make_random_string(size):
     return ''.join([random.choice(string.ascii_letters) for i in range(size)])
 
-class User(db.Model):
+class User(Base):
     __tablename__ = "user"
     __table_args__ = {'sqlite_autoincrement': True}
     id = Column(Integer(), primary_key = True)
@@ -45,26 +48,8 @@ class User(db.Model):
     def to_dict(self):
         return {'id': self.id, 'username': self.username, 'password': self.password, 'email': self.email, 'phone': self.phone}
 
-class UserSession(db.Model):
-    __tablename__ = "usersession"
-    __table_args__ = {'sqlite_autoincrement': True}
-    id = Column(Integer(), primary_key = True)
-    session_id = Column(String(32), unique = True)
-    timestamp = Column(DateTime)
-    user_id = Column(ForeignKey("user.id"), nullable=False)
-    
-    def __init__(self, user_id):
-        self.user_id = user_id
-        self.refresh()
-   
-    def refresh(self):
-        self.session_id = random_string(32)
-        self.timestamp = datetime.utcnow()
-   
-    def session_expired(self):
-        return (self.timestamp - datetime.utcnow()) >= timedelta(hours = 1)
 
-class Good(db.Model):
+class Good(Base):
     __tablename__ = "good"
     __table_args__ = {'sqlite_autoincrement': True}
     id = Column(Integer(), primary_key = True)
@@ -85,7 +70,7 @@ class Good(db.Model):
         return {'id': self.id, 'author_id': self.author_id, 'description': self.description, 'text': self.text}
     
 
-class Comment(db.Model):
+class Comment(Base):
     __tablename__ = "comment"
     __table_args__ = {'sqlite_autoincrement': True}
     id = Column(Integer(), primary_key = True)
@@ -107,3 +92,27 @@ class Comment(db.Model):
         
     def delete(self):
         self.deleted = True
+
+class UserSession(Base):
+    __tablename__ = "usersession"
+    __table_args__ = {'sqlite_autoincrement': True}
+    id = Column(Integer(), primary_key = True)
+    session_id = Column(String(32), unique = True)
+    timestamp = Column(DateTime)
+    user_id = Column(ForeignKey("user.id"), nullable=False)
+    
+    def __init__(self, user_id):
+        self.user_id = user_id
+        self.refresh()
+   
+    def refresh(self):
+        self.session_id = random_string(32)
+        self.timestamp = datetime.utcnow()
+   
+    def session_expired(self):
+        return (self.timestamp - datetime.utcnow()) >= timedelta(hours = 1)
+
+
+def init_db():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
