@@ -129,7 +129,7 @@ def get_good(good_id):
         if commentsr.status_code == 200:
             return render_template('show_good.html', good = goodr.json(), comments = commentsr.json()['Comments'])
         else:
-            return from_myresponce(commentsr)#берет ответ myrequests и делает фласковый ответ
+            return from_myresponce(commentsr)
     else:
         return from_myresponce(goodr) 
 
@@ -140,7 +140,7 @@ def put_good(good_id):
         error = None
         userr = myrequests.get(make_addr(paths.backends['logic'], 'logic/users'), params = {'session_id': s_id})
         if userr.status_code == 200:
-            user = userr.json() #пиреквест отвечает что-то, мне ужен жсон
+            user = userr.json() 
             goodr = myrequests.get(make_addr(paths.backends['logic'], 'logic/goods/{0}'.format(good_id)))
             if goodr.status_code == 200:
                 good = goodr.json()
@@ -311,7 +311,8 @@ def good_comments_query():
     
 #Handlers
         
-def from_myresponce(myresp): 
+def from_myresponce(myresp): #makes response from myrequests in flask format
+    if pyresp.status_code != 200:
         rjson = myresp.json()
         error = rjson['error'] if 'error' in rjson else ''
         return render_template('error.html', code = myresp.status_code, error = error)

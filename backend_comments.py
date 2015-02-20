@@ -1,6 +1,6 @@
-import settings
+import paths
 from models import *
-from common import *
+from tools import *
 
 from flask import *
 
