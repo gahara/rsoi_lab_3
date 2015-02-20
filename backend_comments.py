@@ -1,6 +1,6 @@
 import paths
 from models import *
-from tools import *
+from mytools import *
 
 from flask import *
 
