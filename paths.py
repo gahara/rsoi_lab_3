@@ -1,4 +1,4 @@
-DATABASE_PATH = '/Users/gahara/lab3/third_lab'
+DATABASE_PATH = '/Users/gahara/rsoi_lab3/rsoi_lab_3'
 
 backends = {\
     'frontend': 'http://127.0.0.1:50000',\

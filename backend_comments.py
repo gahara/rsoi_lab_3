@@ -6,7 +6,7 @@ from flask import *
 
 app = Flask(__name__)
 app.config.update(dict(\
-    SQLALCHEMY_DATABASE_URI=settings.DATABASE_PATH),\
+    SQLALCHEMY_DATABASE_URI=paths.DATABASE_PATH),\
     DEBUG=True\
 )
 
@@ -107,5 +107,5 @@ def ok_200(data = {}):
 
 
 if __name__ == '__main__':
-    protocol, host, port = settings.backends['comments'].split(':')
+    protocol, host, port = paths.backends['comments'].split(':')
     app.run(host = host[2:], port = int(port))
