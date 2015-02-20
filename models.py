@@ -1,5 +1,5 @@
-from settings import *
 import os
+from settings import *
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
@@ -19,10 +19,12 @@ import hashlib, string, random
 from flask.ext.sqlalchemy import SQLAlchemy
 from sqlalchemy import *
 
-#Models
 
-def make_random_string(size):
-    return ''.join([random.choice(string.ascii_letters) for i in range(size)])
+def init_db():
+    Base.metadata.drop_all(bind=engine)
+    Base.metadata.create_all(bind=engine)
+
+# models
 
 class User(Base):
     __tablename__ = "user"
@@ -30,32 +32,35 @@ class User(Base):
     id = Column(Integer(), primary_key = True)
     username = Column(String(100), unique=True)
     password = Column(String(256))
-    email = Column(String(200))
+    mail = Column(String(200))
     phone = Column(String(11))
-    sessions = relationship("UserSession", cascade="all, delete-orphan")
-    goods = relationship("Good")
+    goods = relationship("good")
     comments = relationship("Comment")
+    sessions = relationship("UserSession", cascade="all, delete-orphan")
     
-    def __init__(self, username, password, phone, email):
+    def __init__(self, username, password, phone, mail):
         self.username = username
         self.password = password
-        self.email = email
+        self.mail = mail
         self.phone = phone
 
     def __repr__(self):
-        return 'id: {0}, username: {1}, email: {2}, phone: {3}'.format(self.id, self.username, self.email, self.phone)
+        return 'id: {0}, username: {1}, mail: {2}, phone: {3}'.format(self.id, self.username, self.mail, self.phone)
     
     def to_dict(self):
-        return {'id': self.id, 'username': self.username, 'password': self.password, 'email': self.email, 'phone': self.phone}
+        return {'id': self.id, 'username': self.username, 'password': self.password, 'mail': self.mail, 'phone': self.phone}
 
+def make_random_string(size):
+    return ''.join([random.choice(string.ascii_letters) for i in range(size)])
 
 class Good(Base):
     __tablename__ = "good"
     __table_args__ = {'sqlite_autoincrement': True}
     id = Column(Integer(), primary_key = True)
-    author_id = Column(ForeignKey("user.id"), nullable=False)
     description = Column(String(100))
     text = Column(Text())
+    author_id = Column(ForeignKey("user.id"), nullable=False)
+    
     comments = relationship("Comment", cascade="all, delete-orphan")
     
     def __init__(self, user_id, description, text):
@@ -69,6 +74,9 @@ class Good(Base):
     def to_dict(self):
         return {'id': self.id, 'author_id': self.author_id, 'description': self.description, 'text': self.text}
     
+    def to_dict_short(self):
+        return {'id': self.id, 'author_id': self.author_id, 'description': self.description}
+
 
 class Comment(Base):
     __tablename__ = "comment"
@@ -77,7 +85,7 @@ class Comment(Base):
     text = Column(Text())
     author_id = Column(ForeignKey("user.id"), nullable=False)
     good_id = Column(ForeignKey("good.id"), nullable=False)
-    deleted = Column(Boolean(), default = False)
+    is_deleted = Column(Boolean(), default = False)
     
     def __init__(self, user_id, good_id, text):
         self.author_id = user_id
@@ -88,10 +96,11 @@ class Comment(Base):
         return 'id: {0}, author: {1}'.format(self.id, self.author_id)
 
     def to_dict(self):
-        return {'id': self.id, 'author_id': self.author_id, 'good_id': self.good_id, 'text': self.text if not self.deleted else '', 'deleted': self.deleted}
+        return {'id': self.id, 'author_id': self.author_id, 'good_id': self.good_id, 'text': self.text if not self.is_deleted else '', 'is_deleted': self.is_deleted}
         
     def delete(self):
-        self.deleted = True
+        self.is_deleted = True
+
 
 class UserSession(Base):
     __tablename__ = "usersession"
@@ -101,18 +110,14 @@ class UserSession(Base):
     timestamp = Column(DateTime)
     user_id = Column(ForeignKey("user.id"), nullable=False)
     
+    def session_expired(self):
+        return (self.timestamp - datetime.utcnow()) >= timedelta(hours = 1)
+   
+    def refresh(self):
+        self.session_id = make_random_string(32)
+        self.timestamp = datetime.utcnow()
+    
     def __init__(self, user_id):
         self.user_id = user_id
         self.refresh()
-   
-    def refresh(self):
-        self.session_id = random_string(32)
-        self.timestamp = datetime.utcnow()
-   
-    def session_expired(self):
-        return (self.timestamp - datetime.utcnow()) >= timedelta(hours = 1)
 
-
-def init_db():
-    Base.metadata.drop_all(bind=engine)
-    Base.metadata.create_all(bind=engine)
