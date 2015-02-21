@@ -1,0 +1,23 @@
+{% extends "layout.html" %}
+{% block body %}
+<p><a href="{{ url_for('good_comments_query') }}">Complex query</a></p>
+<h2>Posts</h2>
+{% for good in goods %}
+<a href="goods/{{good.id}}">{{good.username}} : {{good.description}}</a>
+<form action="{{ url_for('put_good', good_id = good.id) }}" method=post>
+  <dl>
+    <dd><input type=submit value=Edit>
+  </dl>
+</form>
+<form action="{{ url_for('delete_good', good_id = good.id) }}" method=post>
+  <dl>
+    <dd><input type=submit value=Delete>
+  </dl>
+</form>
+{% endfor %}
+<form action="goods?text=&amp;description=" method=post>
+  <dl>
+    <dd><input type=submit value=AddGood>
+  </dl>
+</form>
+{% endblock %}
