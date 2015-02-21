@@ -1,13 +1,13 @@
 {% extends "layout.html" %}
 {% block body %}
   <h2>{{good.description}}</h2>
-  <p>{{post.text}}</p>
+  <p>{{good.text}}</p>
   <br/>
   <h2>Comments:</h2>
   {% for comment in comments %}
   <p>
   {{comment.username}} : 
-  {% if comment.deleted is sameas true %}
+  {% if comment.is_deleted is sameas true %}
   COMMENT WAS DELETED PERMANENTLY
   {% else %}
   {{comment.text}}
@@ -16,7 +16,7 @@
   <form action="{{ url_for('put_comment', comment_id = comment.id) }}" method=post>
     <dl>
       <dd><input type=submit value=Edit>
-      <dd><input type=hidden name=post_id value={{post.id}}>
+      <dd><input type=hidden name=good_id value={{good.id}}>
     </dl>
   </form>
   <form action="{{ url_for('delete_comment', comment_id = comment.id) }}" method=post>

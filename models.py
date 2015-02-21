@@ -34,7 +34,7 @@ class User(Base):
     password = Column(String(256))
     mail = Column(String(200))
     phone = Column(String(11))
-    goods = relationship("good")
+    goods = relationship("Good")
     comments = relationship("Comment")
     sessions = relationship("UserSession", cascade="all, delete-orphan")
     

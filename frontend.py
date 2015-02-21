@@ -39,7 +39,7 @@ def register():
         email = get_url_parameter('email')
         phone = get_url_parameter('phone')
         
-        resp = myrequests.good(\
+        resp = myrequests.post(\
             make_addr(paths.backends['logic'], 'logic/register'),\
             params = {'username': uname, 'password': password, 'email': email, 'phone': phone}\
         )
@@ -81,7 +81,7 @@ def logout():
             s_id = request.cookies.get('session_id')
         
         if s_id:
-            resp = myrequests.good(make_addr(paths.backends['logic'], 'logic/logout'), params = {'session_id': s_id})
+            resp = myrequests.post(make_addr(paths.backends['logic'], 'logic/logout'), params = {'session_id': s_id})
             if resp.status_code == 200:
                 cliresp = redirect(url_for('index')) #
                 cliresp.set_cookie('session_id', '')
@@ -92,7 +92,7 @@ def logout():
 
   
 @app.route('/goods', methods=['POST'])
-def good_goods():
+def post_goods():
     if 'session_id' in request.cookies:
         s_id = request.cookies.get('session_id')
         error = None
@@ -103,7 +103,7 @@ def good_goods():
             text = get_url_parameter('text')
             
             if descr:
-                goodidr = myrequests.good(\
+                goodidr = myrequests.post(\
                     make_addr(paths.backends['logic'], 'logic/goods'),\
                     params = {'user_id': userr.json()['id'], 'session_id': s_id},\
                     data = pyjson.dumps({'text': text, 'description': descr}),\
@@ -196,7 +196,7 @@ def delete_good(good_id):
         return redirect(url_for('login'))
 
 @app.route('/comments', methods=['POST'])
-def good_comments():
+def post_comments():
     if 'session_id' in request.cookies:
         error = None
         s_id = request.cookies.get('session_id')
@@ -210,7 +210,7 @@ def good_comments():
                 text = get_url_parameter('text')
                 
                 if text:
-                    commentidr = myrequests.good(\
+                    commentidr = myrequests.post(\
                         make_addr(paths.backends['logic'], 'logic/comments'),\
                         params = {'user_id': user['id'], 'good_id': pid, 'session_id': s_id},\
                         data = pyjson.dumps({'text': text}),\
@@ -312,7 +312,7 @@ def good_comments_query():
 #Handlers
         
 def from_myresponce(myresp): #makes response from myrequests in flask format
-    if pyresp.status_code != 200:
+    if myresp.status_code != 200:
         rjson = myresp.json()
         error = rjson['error'] if 'error' in rjson else ''
         return render_template('error.html', code = myresp.status_code, error = error)

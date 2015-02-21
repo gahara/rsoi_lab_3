@@ -1,0 +1,26 @@
+{% extends "layout.html" %}
+{% block body %}
+<table>
+<th>Results</th>
+<tbody>
+<tr>
+<td>ID</td>
+<td>Username</td>
+<td>UserID</td>
+<td>GoodID</td>
+<td>Deleted</td>
+<td>Text</td>
+</tr>
+{% for c in comments %}
+<tr>
+<td>{{c['id']}}</td>
+<td>{{c['username']}}</td>
+<td>{{c['author_id']}}</td>
+<td>{{c['good_id']}}</td>
+<td>{{c['is_deleted']}}</td>
+<td>{{c['text']}}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+{% endblock %}

@@ -200,7 +200,7 @@ def logic_good_comments_query():
     if has_url_parameter('user_id'):
         uid = get_url_parameter('user_id')
         goodsr = myrequests.get(make_addr(paths.backends['goods'], 'goods'), params = {'user_id': uid})
-        goods = goodsr.json()['goods']
+        goods = goodsr.json()['Goods']
         comments = []
         comr = myrequests.get(\
             make_addr(paths.backends['comments'], 'comments'),\

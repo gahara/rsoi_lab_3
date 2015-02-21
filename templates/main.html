@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 <p><a href="{{ url_for('good_comments_query') }}">Complex query</a></p>
-<h2>Posts</h2>
+<h2>Goods</h2>
 {% for good in goods %}
 <a href="goods/{{good.id}}">{{good.username}} : {{good.description}}</a>
 <form action="{{ url_for('put_good', good_id = good.id) }}" method=post>

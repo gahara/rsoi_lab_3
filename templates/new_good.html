@@ -2,10 +2,10 @@
 {% block body %}
   <h2>Edit good</h2>
   {% if error %}<p class=error><strong>Error:</strong> {{ error }}{% endif %}
-  <form action="{{ url_for('post_goodss') }}" method=post>
+  <form action="{{ url_for('post_goods') }}" method=post>
     <dl>
-      <dt>Caption:
-      <dd><input type=text name=caption value="{{description}}">
+      <dt>Description:
+      <dd><input type=text name=description value="{{description}}">
       <dt>Text:
       <dd><textarea name=text rows=40 cols=100>{{text}}</textarea>
       <dd><input type=submit value=Done>

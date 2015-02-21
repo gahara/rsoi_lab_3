@@ -34,7 +34,7 @@ def session_login():
     un = get_url_parameter('username')
     password = get_url_parameter('password')
     
-    u = User.query.filter_by(username = un, password_hash = password).first()
+    u = User.query.filter_by(username = un, password = password).first()
     if u:
         s = UserSession.query.filter_by(user_id = u.id).first()
         if s:

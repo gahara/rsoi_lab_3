@@ -71,7 +71,7 @@ def put_comment(comment_id):
     text = get_url_parameter('text')
     c = Comment.query.filter_by(id = comment_id).first()
     if c:
-        if not c.isdeleted:
+        if not c.is_deleted:
             c.text = text
             db_session.commit()
             return ok_200()

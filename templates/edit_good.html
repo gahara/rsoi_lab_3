@@ -5,7 +5,7 @@
   <form action="{{ url_for('put_good', good_id = good_id) }}" method=post>
     <dl>
       <dt>Caption:
-      <dd><input type=text name=caption value="{{description}}">
+      <dd><input type=text name=description value="{{description}}">
       <dt>Text:
       <dd><textarea name=text rows=40 cols=100>{{text}}</textarea>
       <dd><input type=hidden name=editing_finished value="True">
